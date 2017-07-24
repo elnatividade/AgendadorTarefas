@@ -33,11 +33,14 @@ public class AgendamentoDAO {
 		propriedades.setProperty(PROP_TIPOTAREFA, tipoTarefa);
 		
 		String caminho = new StringBuilder().append("./tarefas/").append(nome).append(".properties").toString();
+		File arquivo = new File(caminho);
 		
+		if(arquivo.isFile()&& arquivo.exists())arquivo.delete();
+			
 		FileOutputStream arquivoSaida = null;
 		
 		try {
-			arquivoSaida = new FileOutputStream(caminho);
+			arquivoSaida = new FileOutputStream(arquivo);
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -115,8 +118,9 @@ public class AgendamentoDAO {
 
 
 
-	public void excluirAgendamento(String nome) {
-		// TODO Auto-generated method stub
+	public boolean excluirAgendamento(String nome) {
+		File arquivo = new File("./tarefas/" + nome  + ".properties");
+		return arquivo.delete();
 		
 	}
 	

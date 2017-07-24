@@ -18,6 +18,7 @@ import java.util.HashMap;
 import javax.swing.DefaultComboBoxModel;
 
 import br.com.jctm.agendadortarefas.controler.AgendamentoControler;
+import br.com.jctm.agendadortarefas.model.AgendamentoModel;
 
 public class AgendamentoView extends JFrame {
 
@@ -36,17 +37,31 @@ public class AgendamentoView extends JFrame {
 	@SuppressWarnings("rawtypes")
 	private JComboBox cbxTipoTarefa;
 	private JButton btnCancelarAgendamento;
+	private AgendamentoModel agendamento;
 	
 
-	
 	
 	public AgendamentoView() {
+		setTitle("Adicionar Agendamento");
+		this.agendamento = new AgendamentoModel();
+		this.agendamento.setNome("");
+		this.agendamento.setGrupo("");
+		this.agendamento.setDescricao("");
+		this.agendamento.setCron("");
 		inicializarComponentes();
-				
 	}
 
+	
+		
+	public AgendamentoView(AgendamentoModel agendamento){
+		setTitle("Editar Agendamento");
+		this.agendamento = agendamento;
+		inicializarComponentes();
+		
+	}
 
-
+	
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void inicializarComponentes() {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -68,8 +83,10 @@ public class AgendamentoView extends JFrame {
 		
 		txfNome = new JTextField();
 		txfNome.setBounds(6, 32, 355, 20);
-		pnlCamposAgendamentos.add(txfNome);
 		txfNome.setColumns(10);
+		txfNome.setText(agendamento.getNome());
+		pnlCamposAgendamentos.add(txfNome);
+		
 		
 		lblGrupo = new JLabel("Grupo");
 		lblGrupo.setBounds(371, 16, 213, 14);
@@ -77,8 +94,10 @@ public class AgendamentoView extends JFrame {
 		
 		txfGrupo = new JTextField();
 		txfGrupo.setBounds(371, 32, 213, 20);
-		pnlCamposAgendamentos.add(txfGrupo);
 		txfGrupo.setColumns(10);
+		txfGrupo.setText(agendamento.getGrupo());
+		pnlCamposAgendamentos.add(txfGrupo);
+		
 		
 		JLabel lblDescrio = new JLabel("Descri\u00E7\u00E3o");
 		lblDescrio.setBounds(6, 63, 578, 14);
@@ -86,8 +105,10 @@ public class AgendamentoView extends JFrame {
 		
 		txfDescricao = new JTextField();
 		txfDescricao.setBounds(6, 79, 578, 20);
-		pnlCamposAgendamentos.add(txfDescricao);
 		txfDescricao.setColumns(10);
+		txfDescricao.setText(agendamento.getDescricao());
+		pnlCamposAgendamentos.add(txfDescricao);
+		
 		
 		lblCron = new JLabel("Cron");
 		lblCron.setBounds(6, 110, 578, 14);
@@ -95,8 +116,10 @@ public class AgendamentoView extends JFrame {
 		
 		txfCron = new JTextField();
 		txfCron.setBounds(6, 126, 578, 20);
-		pnlCamposAgendamentos.add(txfCron);
 		txfCron.setColumns(10);
+		txfCron.setText(agendamento.getCron());
+		pnlCamposAgendamentos.add(txfCron);
+		
 		
 		pnlCamposTarefa = new JPanel();
 		pnlCamposTarefa.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Tarefa", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
@@ -109,26 +132,28 @@ public class AgendamentoView extends JFrame {
 		pnlCamposTarefa.add(lblTipo);
 		
 		btnAdicionarTarefa = new JButton("Adicionar Tarefa");
-		btnAdicionarTarefa.setBounds(367, 34, 213, 23);
+		btnAdicionarTarefa.setBounds(367, 34, 213, 20);
 		pnlCamposTarefa.add(btnAdicionarTarefa);
 		
 		cbxTipoTarefa = new JComboBox();
 		cbxTipoTarefa.setModel(new DefaultComboBoxModel(TipoTarefaEnum.values()));
-		cbxTipoTarefa.setBounds(10, 35, 355, 20);
+		cbxTipoTarefa.setBounds(10, 34, 355, 20);
 		pnlCamposTarefa.add(cbxTipoTarefa);
 		
 		btnCancelarAgendamento = new JButton("Cancelar");
 		btnCancelarAgendamento.setBounds(254, 257, 89, 23);
 		pnlAgendamento.add(btnCancelarAgendamento);
 		
-		AgendamentoViewListner ouvinte = new AgendamentoViewListner();
-		btnAdicionarTarefa.addActionListener(ouvinte);
-		btnCancelarAgendamento.addActionListener(ouvinte);
+		btnAdicionarTarefa.addActionListener(new AdicionarTarefa());
+		btnCancelarAgendamento.addActionListener(new CancelarTarefa());
+		
+				
+		
 	}
 	
 	
 	
-	public void limparAgendamentoView(){
+	private void limparAgendamentoView(){
 		txfNome.setText("");
 		txfGrupo.setText("");
 		txfDescricao.setText("");
@@ -137,30 +162,35 @@ public class AgendamentoView extends JFrame {
 	
 	
 	
-	private class AgendamentoViewListner implements ActionListener{
+	private class AdicionarTarefa implements ActionListener{
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if(e.getActionCommand().equals("Adicionar Tarefa")){
-				HashMap<String, String> dadosTela = new HashMap<String, String>();
-				dadosTela.put("nome", txfNome.getText());
-				dadosTela.put("grupo", txfGrupo.getText());
-				dadosTela.put("descricao", txfDescricao.getText());
-				dadosTela.put("cron", txfCron.getText());
-				dadosTela.put("tipoTarefa", cbxTipoTarefa.getSelectedItem().toString());
-				AgendamentoControler agendamentoControler = new AgendamentoControler();
-				agendamentoControler.adicionarAgendamento(dadosTela);
-				limparAgendamentoView();
-				AgendadorTarefasView.atualizarTabelaAgendamentos();		
-				
-			}else if(e.getActionCommand().equals("Cancelar")){
-				dispose();
-				
-			}
+		public void actionPerformed(ActionEvent ev) {
+			HashMap<String, String> dadosTela = new HashMap<String, String>();
+			dadosTela.put("nome", txfNome.getText());
+			dadosTela.put("grupo", txfGrupo.getText());
+			dadosTela.put("descricao", txfDescricao.getText());
+			dadosTela.put("cron", txfCron.getText());
+			dadosTela.put("tipoTarefa", cbxTipoTarefa.getSelectedItem().toString());
+			AgendamentoControler agendamentoControler = new AgendamentoControler();
+			agendamentoControler.adicionarAgendamento(dadosTela);
+			limparAgendamentoView();
+			AgendadorTarefasView.atualizarTabelaAgendamentos();	
 			
 		}
-				
 		
 	}
+	
+	
+	
+	private class CancelarTarefa implements ActionListener{
+
+		public void actionPerformed(ActionEvent ev) {
+			dispose();
+			
+		}
 		
+	}
+	
+	
+	
 }

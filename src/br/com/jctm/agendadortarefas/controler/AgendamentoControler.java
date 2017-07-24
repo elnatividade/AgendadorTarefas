@@ -7,6 +7,7 @@ import br.com.jctm.agendadortarefas.model.AgendamentoDAO;
 import br.com.jctm.agendadortarefas.model.AgendamentoModel;
 
 
+
 public class AgendamentoControler {
 	
 	private AgendamentoDAO dao;
@@ -45,9 +46,9 @@ public class AgendamentoControler {
 
 
 
-	public void removerAgendamento(String nome) {
-		dao.excluirAgendamento(nome);
-		
+	public boolean removerAgendamento(String nome) {
+		return dao.excluirAgendamento(nome);
+			
 	}
 		
 	

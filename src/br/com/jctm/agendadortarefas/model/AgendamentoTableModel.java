@@ -51,6 +51,12 @@ public class AgendamentoTableModel extends AbstractTableModel {
 		return colunas[column];
 	}
 	
+	
+	
+	public AgendamentoModel getLinhaAgendamento(int rowIndex){
+		return listaAgendamentos.get(rowIndex);
+		
+	}
 		
 		
 }

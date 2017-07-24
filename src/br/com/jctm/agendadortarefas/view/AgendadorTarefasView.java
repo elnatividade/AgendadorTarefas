@@ -12,10 +12,10 @@ import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-
 import javax.swing.JTable;
-
 import br.com.jctm.agendadortarefas.controler.AgendamentoControler;
 import br.com.jctm.agendadortarefas.model.AgendamentoModel;
 import br.com.jctm.agendadortarefas.model.AgendamentoTableModel;
@@ -53,7 +53,7 @@ public class AgendadorTarefasView extends JFrame {
 		pnlAgendamentoTarefas.setLayout(null);
 		
 		pnlAgendamentos = new JPanel();
-		pnlAgendamentos.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Agendamentos", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		pnlAgendamentos.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Lista de Agendamentos", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		pnlAgendamentos.setBounds(10, 0, 614, 268);
 		pnlAgendamentoTarefas.add(pnlAgendamentos);
 		pnlAgendamentos.setLayout(null);
@@ -63,6 +63,7 @@ public class AgendadorTarefasView extends JFrame {
 		pnlAgendamentos.add(spnlTabelaAgendamentos);
 		
 		tblListaAgendamentos = new JTable(new AgendamentoTableModel(listaAgendamentos));
+		tblListaAgendamentos.addMouseListener(new EditarAgendamento());
 		spnlTabelaAgendamentos.setViewportView(tblListaAgendamentos);
 		
 		btnAdicionarAgendamento = new JButton("+");
@@ -74,7 +75,7 @@ public class AgendadorTarefasView extends JFrame {
 		pnlAgendamentos.add(btnRemoverAgendamento);
 		
 		btnExecutarAgendamentos = new JButton("Executar Agendamentos");
-		btnExecutarAgendamentos.setBounds(9, 272, 292, 33);
+		btnExecutarAgendamentos.setBounds(10, 272, 292, 33);
 		pnlAgendamentoTarefas.add(btnExecutarAgendamentos);
 		
 		btnPararAgendametos = new JButton("Parar Agendamentos");
@@ -82,11 +83,10 @@ public class AgendadorTarefasView extends JFrame {
 		pnlAgendamentoTarefas.add(btnPararAgendametos);
 		
 		
-		AgendadorTarefasMainListner ouvinte = new AgendadorTarefasMainListner();
-		btnAdicionarAgendamento.addActionListener(ouvinte);
-		btnPararAgendametos.addActionListener(ouvinte);
-		btnExecutarAgendamentos.addActionListener(ouvinte);	
-		btnRemoverAgendamento.addActionListener(ouvinte);
+		btnAdicionarAgendamento.addActionListener(new AdicionarAgendamento());
+		btnRemoverAgendamento.addActionListener(new RemoverAgendamento());
+		btnExecutarAgendamentos.addActionListener(new ExecutarListaAgendamentos());	
+		btnPararAgendametos.addActionListener(new PausarListaAgendamentos());
 	}
 	
 	
@@ -98,32 +98,82 @@ public class AgendadorTarefasView extends JFrame {
 	}
 	
 	
-		
-	private class AgendadorTarefasMainListner implements ActionListener{
+	
+	private class AdicionarAgendamento implements ActionListener{
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if(e.getActionCommand().equals("+")){
-				AgendamentoView agendamentoView = new AgendamentoView();
-				agendamentoView.setLocationRelativeTo(null);
-				agendamentoView.setVisible(true);
+		public void actionPerformed(ActionEvent ev) {
+			AgendamentoView agendamentoView = new AgendamentoView();
+			agendamentoView.setLocationRelativeTo(null);
+			agendamentoView.setVisible(true);
 			
-			}else if(e.getActionCommand().equals("-")){
-				JOptionPane.showMessageDialog(null, "Remover Agendamento");
-				int index = tblListaAgendamentos.getSelectedRow();
-				String nome = "";
+		}
+		
+	}
+	
+	
+	
+	private class RemoverAgendamento implements ActionListener{
+
+		public void actionPerformed(ActionEvent ev) {
+			int posicaoLinha = tblListaAgendamentos.getSelectedRow();
+			int posicaoColuna = 0;
+			if(posicaoLinha >= 0){
+				String nome  = (String) tblListaAgendamentos.getValueAt(posicaoLinha, posicaoColuna);
 				AgendamentoControler agendamentoControler = new AgendamentoControler();
-				agendamentoControler.removerAgendamento(nome);
+				if( agendamentoControler.removerAgendamento(nome)){
+					AgendadorTarefasView.atualizarTabelaAgendamentos();
+					JOptionPane.showMessageDialog(null, "Agendamento excluido");
+					
+				}else{
+					JOptionPane.showMessageDialog(null, "Não foi possível excluir o agendamento");
+				}
 				
-			}else if(e.getActionCommand().equals("Executar Agendamentos")){
-				JOptionPane.showMessageDialog(null, "Executar Agendamentos");
-				
-			}else if(e.getActionCommand().equals("Parar Agendamentos")){
-				JOptionPane.showMessageDialog(null, "Parar Agendamentos");
-				
+			}else{
+				JOptionPane.showMessageDialog(null, "Selecione um agendamento na lista");
 			}
 			
 		}
-			
+		
 	}
+	
+	
+	
+	private class ExecutarListaAgendamentos implements ActionListener{
+
+		public void actionPerformed(ActionEvent ev) {
+			JOptionPane.showMessageDialog(null, "Executar Agendamentos");
+			
+		}
+		
+	}
+	
+	
+	
+	private class PausarListaAgendamentos implements ActionListener{
+
+		public void actionPerformed(ActionEvent ev) {
+			JOptionPane.showMessageDialog(null, "Pausar Agendamentos");
+			
+		}
+		
+	}
+	
+	
+	
+	public class EditarAgendamento extends MouseAdapter{
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getClickCount() == 2){
+				int indexLinhaSelecionada = tblListaAgendamentos.getSelectedRow();
+				AgendamentoTableModel model = (AgendamentoTableModel) tblListaAgendamentos.getModel();
+				AgendamentoModel agendamento = model.getLinhaAgendamento(indexLinhaSelecionada);
+				AgendamentoView agendamentoView = new AgendamentoView(agendamento);
+				agendamentoView.setLocationRelativeTo(null);
+				agendamentoView.setVisible(true);
+			}
+			
+		}
+	}
+		
+	
 }

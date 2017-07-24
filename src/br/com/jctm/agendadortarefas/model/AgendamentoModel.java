@@ -12,6 +12,12 @@ public class AgendamentoModel {
 
 
 	
+	public AgendamentoModel() {
+		super();
+	}
+	
+	
+	
 	public AgendamentoModel(String nome, String grupo, String descricao,
 			String cron, String tipoTarefa) {
 		super();
